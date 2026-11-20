@@ -1,0 +1,24 @@
+"use client";
+import { useMemo, useState } from "react";
+import { formatGNF } from "@/lib/format";
+
+type Restaurant = { id: string; name: string; slug: string; description: string; cuisine: string; district: string; imageUrl: string; isOpen: boolean; menuItems: { name: string; price: number }[]; _count: { menuItems: number } };
+type Story = { id: string; caption: string; imageUrl: string; restaurant: { name: string; slug: string; imageUrl: string } };
+const categories = ["Tout", "Guinéenne", "Africaine", "Grillades", "Fast-food", "Boissons"];
+
+export function HomeExplorer({ restaurants, stories }: { restaurants: Restaurant[]; stories: Story[] }) {
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("Tout");
+  const filtered = useMemo(() => restaurants.filter((r) => {
+    const text = `${r.name} ${r.cuisine} ${r.district} ${r.menuItems.map((m) => m.name).join(" ")}`.toLowerCase();
+    return text.includes(query.toLowerCase()) && (category === "Tout" || r.cuisine.toLowerCase().includes(category.toLowerCase()));
+  }), [restaurants, query, category]);
+  return <main>
+    <section className="hero"><div className="hero-copy"><span className="eyebrow">BONJOUR CONAKRY · I NI CE</span><h1>De bonnes choses<br />se passent <em>à table.</em></h1><p>Les restaurants que vous aimez, les saveurs à découvrir. Tout Conakry dans votre poche.</p><a className="button button-dark" href="#restaurants">Explorer les restaurants <span>↘</span></a><div className="hero-proof"><span className="proof-avatars">👩🏿‍🍳 👨🏿‍🍳 🧑🏿‍🍳</span><span>Les bonnes adresses de Conakry<br /><b>à découvrir chaque jour</b></span></div></div><div className="hero-visual"><img src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1100&q=88" alt="Plat généreux aux couleurs africaines"/><div className="hero-note"><span>✦</span><div><b>Le goût d'ici</b><small>Local, frais, délicieux</small></div></div><div className="hero-sticker">BON<br/>APPÉTIT <b>♥</b></div></div></section>
+    <section className="story-section"><div className="section-heading"><div><span className="eyebrow">ÇA SE PASSE EN CUISINE</span><h2>Les stories du jour <span>✳</span></h2></div><a href="#restaurants" className="text-link">Tout découvrir ↗</a></div><div className="story-row">{stories.length ? stories.map((story) => <a className="story-card" href={`/restaurants/${story.restaurant.slug}`} key={story.id}><img src={story.imageUrl} alt={story.caption}/><div className="story-shade"/><span className="story-ring"><img src={story.restaurant.imageUrl} alt=""/></span><b>{story.restaurant.name}</b><small>{story.caption}</small></a>) : <div className="story-empty">Les nouveautés des restaurants apparaîtront ici. Revenez bientôt !</div>}</div></section>
+    <section className="discover" id="restaurants"><div className="section-heading"><div><span className="eyebrow">VOTRE PROCHAINE ENVIE</span><h2>On mange quoi ?</h2></div><span className="result-count">{filtered.length} adresse{filtered.length > 1 ? "s" : ""} à Conakry</span></div><label className="search-box"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Un restaurant, un plat, un quartier…"/><kbd>⌘ K</kbd></label><div className="category-row">{categories.map((item) => <button onClick={() => setCategory(item)} className={`category-chip ${category === item ? "selected" : ""}`} key={item}>{item}</button>)}</div>
+      <div className="restaurant-grid">{filtered.map((r, i) => <a href={`/restaurants/${r.slug}`} className="restaurant-card" key={r.id}><div className="restaurant-image"><img src={r.imageUrl} alt={r.name} loading={i > 2 ? "lazy" : "eager"}/><span className={`open-badge ${r.isOpen ? "is-open" : ""}`}><i/> {r.isOpen ? "Ouvert" : "Fermé"}</span><button aria-label="Ajouter aux favoris" className="heart" onClick={(e) => {e.preventDefault(); e.currentTarget.classList.toggle("liked");}}>♡</button></div><div className="restaurant-info"><div className="restaurant-title"><h3>{r.name}</h3><span className="rating">★ 4,8</span></div><p>{r.cuisine} <span>·</span> {r.district}</p><div className="restaurant-meta"><span>🍽 {r._count.menuItems} plats</span><span>{r.menuItems[0] ? `Dès ${formatGNF(r.menuItems[0].price)}` : "Menu à découvrir"}</span></div></div></a>)}</div>
+      {!filtered.length && <div className="no-results"><span>🍲</span><h3>Aucune adresse trouvée</h3><p>Essayez un autre nom, plat ou quartier.</p></div>}
+    </section><section className="callout"><div><span className="eyebrow">VOUS TENEZ UN RESTAURANT ?</span><h2>Faites découvrir<br/>vos saveurs à Conakry.</h2><p>Présentez votre menu et recevez des commandes directement.</p><a className="button button-light" href="/connexion">Rejoindre Nyamgo <span>↗</span></a></div><div className="callout-art">🍛<span>✳</span></div></section>
+  </main>;
+}

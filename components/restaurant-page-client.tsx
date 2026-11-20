@@ -1,0 +1,17 @@
+"use client";
+import { useState } from "react";
+import { formatGNF } from "@/lib/format";
+type Restaurant = { id: string; name: string; slug: string; description: string; cuisine: string; district: string; address: string; phone: string; imageUrl: string; isOpen: boolean; menuItems: { id: string; name: string; description: string; price: number; imageUrl: string; category: string }[]; stories: { id: string; caption: string; imageUrl: string }[] };
+type CartLine = { menuItemId: string; restaurantId: string; restaurantName: string; restaurantSlug: string; name: string; price: number; imageUrl: string; quantity: number };
+export function RestaurantPageClient({ restaurant }: { restaurant: Restaurant }) {
+  const [added, setAdded] = useState<string>("");
+  function add(item: Restaurant["menuItems"][number]) {
+    let cart: CartLine[] = []; try { cart = JSON.parse(localStorage.getItem("nyamgo-cart") || "[]"); } catch {}
+    if (cart.length && cart[0].restaurantId !== restaurant.id) { if (!window.confirm("Votre panier contient les plats d’un autre restaurant. Le remplacer ?")) return; cart = []; }
+    const line = cart.find((x) => x.menuItemId === item.id);
+    if (line) line.quantity++; else cart.push({ menuItemId: item.id, restaurantId: restaurant.id, restaurantName: restaurant.name, restaurantSlug: restaurant.slug, name: item.name, price: item.price, imageUrl: item.imageUrl, quantity: 1 });
+    localStorage.setItem("nyamgo-cart", JSON.stringify(cart)); window.dispatchEvent(new Event("nyamgo-cart-update")); setAdded(item.id); setTimeout(() => setAdded(""), 1200);
+  }
+  const groups = [...new Set(restaurant.menuItems.map((item) => item.category))];
+  return <main className="restaurant-page"><div className="restaurant-cover"><img src={restaurant.imageUrl} alt={restaurant.name}/><a href="/" className="back-pill">← Explorer</a><span className={`open-badge cover-status ${restaurant.isOpen ? "is-open" : ""}`}><i/>{restaurant.isOpen ? "Ouvert maintenant" : "Fermé"}</span></div><div className="restaurant-detail-head"><div><span className="eyebrow">{restaurant.cuisine} · {restaurant.district}, CONAKRY</span><h1>{restaurant.name}</h1><p>{restaurant.description}</p><div className="detail-meta"><span>★ 4,8 <small>(avis clients)</small></span><span>⌖ {restaurant.address}</span><a href={`tel:${restaurant.phone}`}>☎ {restaurant.phone}</a></div></div><a className="button button-dark" href="#menu">Voir le menu ↓</a></div>{restaurant.stories.length > 0 && <div className="restaurant-stories"><span className="eyebrow">À LA UNE</span>{restaurant.stories.map((story) => <div key={story.id}><img src={story.imageUrl} alt=""/><b>{story.caption}</b></div>)}</div>}<section id="menu" className="menu-section"><div className="section-heading"><div><span className="eyebrow">CUISINÉ AVEC AMOUR</span><h2>Le menu</h2></div><span className="result-count">Commande à récupérer ou à faire livrer par le restaurant</span></div>{groups.map((group) => <div className="menu-group" key={group}><h3>{group}</h3><div className="menu-grid">{restaurant.menuItems.filter((item) => item.category === group).map((item) => <article className="menu-card" key={item.id}><img src={item.imageUrl} alt={item.name} loading="lazy"/><div className="menu-card-copy"><h4>{item.name}</h4><p>{item.description}</p><div><b>{formatGNF(item.price)}</b><button aria-label={`Ajouter ${item.name} au panier`} onClick={() => add(item)}>{added === item.id ? "Ajouté ✓" : "+ Ajouter"}</button></div></div></article>)}</div></div>)}</section></main>;
+}
