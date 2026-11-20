@@ -2,7 +2,7 @@
 
 Application web responsive de découverte de restaurants et de commande de repas en Guinée.
 
-## Stack
+## Technologies
 
 - Next.js 15, React 19 et TypeScript
 - Prisma ORM et PostgreSQL
@@ -12,14 +12,14 @@ Application web responsive de découverte de restaurants et de commande de repas
 
 Node.js 20 ou plus récent et une base PostgreSQL accessible.
 
-## Démarrage local
+## Lancement local
 
 ```bash
 npm install
 cp .env.example .env
 ```
 
-Renseignez `DATABASE_URL` et `AUTH_SECRET` dans `.env`, puis :
+Configurez `DATABASE_URL` et `AUTH_SECRET` dans `.env`. `AUTH_SECRET` doit contenir au moins 32 caractères aléatoires. Puis lancez :
 
 ```bash
 npm run db:push
@@ -27,13 +27,23 @@ npm run db:seed
 npm run dev
 ```
 
-Ouvrir http://localhost:3000. Vérifications disponibles : `npm run typecheck` et `npm run build`.
+Ouvrir http://localhost:3000.
+
+## Vérifications
+
+```bash
+npx prisma validate
+npm run typecheck
+npm run build
+```
+
+Une GitHub Actions workflow exécute la validation Prisma, la vérification TypeScript et le build sur les pushes vers `main` et les pull requests. Ces commandes nécessitent les dépendances installées; je ne peux pas exécuter le terminal depuis cette interface.
 
 ## Déploiement
 
-1. Créez une base PostgreSQL et configurez `DATABASE_URL` dans l’environnement de déploiement.
-2. Définissez `AUTH_SECRET` avec une valeur aléatoire forte (au moins 32 caractères). Ne réutilisez pas la valeur de développement.
-3. Configurez les variables d’environnement et lancez `npm run build` avant le déploiement.
-4. Appliquez le schéma avec `npm run db:push`.
+1. Créez une base PostgreSQL hébergée et définissez `DATABASE_URL` dans les variables d’environnement du fournisseur.
+2. Définissez `AUTH_SECRET` comme secret aléatoire robuste d’au moins 32 caractères. Ne publiez pas sa valeur dans Git.
+3. Appliquez le schéma avec `npx prisma db push` depuis un environnement ayant accès à la base.
+4. Déployez l’application. La commande de build est `npm run build`.
 
-Le seed de démonstration crée des comptes de test. Utilisez uniquement des identifiants non sensibles et retirez ces comptes avant une mise en production.
+Le seed fournit des comptes et données de démonstration avec un mot de passe connu. Ne lancez pas ce seed sur un environnement public de production; retirez ou modifiez les données de démonstration avant mise en ligne.

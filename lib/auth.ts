@@ -2,7 +2,11 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 
-const secret = new TextEncoder().encode(process.env.AUTH_SECRET || "development-only-change-this-secret-before-deploy");
+const secretValue = process.env.AUTH_SECRET ?? (process.env.NODE_ENV === "production" ? "" : "nyamgo-development-secret-do-not-use-in-production");
+if (secretValue.length < 32) {
+  throw new Error("AUTH_SECRET must contain at least 32 characters.");
+}
+const secret = new TextEncoder().encode(secretValue);
 const COOKIE = "nyamgo_session";
 
 export async function createSession(user: { id: string; role: string }) {
