@@ -1,39 +1,39 @@
 # Nyamgo
 
-Application responsive de découverte de restaurants et de commande de repas en Guinée.
+Application web responsive de découverte de restaurants et de commande de repas en Guinée.
 
 ## Stack
 
-- Next.js 15 / React 19 / TypeScript
-- Prisma ORM
-- PostgreSQL
-- Authentification JWT sécurisée par cookie HttpOnly
-- Déploiement adapté à Vercel + Neon/Supabase
+- Next.js 15, React 19 et TypeScript
+- Prisma ORM et PostgreSQL
+- Sessions JWT stockées dans un cookie HttpOnly
 
-## Démarrage
+## Prérequis
+
+Node.js 20 ou plus récent et une base PostgreSQL accessible.
+
+## Démarrage local
 
 ```bash
 npm install
 cp .env.example .env
+```
+
+Renseignez `DATABASE_URL` et `AUTH_SECRET` dans `.env`, puis :
+
+```bash
 npm run db:push
 npm run db:seed
 npm run dev
 ```
 
-Ouvrir `http://localhost:3000`.
+Ouvrir http://localhost:3000. Vérifications disponibles : `npm run typecheck` et `npm run build`.
 
-## Comptes de démonstration
+## Déploiement
 
-Après le seed :
+1. Créez une base PostgreSQL et configurez `DATABASE_URL` dans l’environnement de déploiement.
+2. Définissez `AUTH_SECRET` avec une valeur aléatoire forte (au moins 32 caractères). Ne réutilisez pas la valeur de développement.
+3. Configurez les variables d’environnement et lancez `npm run build` avant le déploiement.
+4. Appliquez le schéma avec `npm run db:push`.
 
-- Client : `aissatou@example.gn` / `Password123!`
-- Restaurant : `restaurant@nyamgo.gn` / `Password123!`
-- Administrateur : `admin@nyamgo.gn` / `Password123!`
-
-## Déploiement gratuit
-
-1. Créer une base PostgreSQL gratuite sur Neon ou Supabase.
-2. Importer le projet sur Vercel.
-3. Ajouter `DATABASE_URL` et `AUTH_SECRET` dans les variables d'environnement.
-4. Exécuter `npx prisma db push` depuis un terminal connecté à la base.
-5. Déployer.
+Le seed de démonstration crée des comptes de test. Utilisez uniquement des identifiants non sensibles et retirez ces comptes avant une mise en production.
